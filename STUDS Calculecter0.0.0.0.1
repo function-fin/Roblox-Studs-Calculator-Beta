@@ -1,0 +1,288 @@
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local LocalPlayer = Players.LocalPlayer
+
+local ponto1 = nil
+local ponto2 = nil
+local modoTempoReal = true
+
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "CalculadorStudsGui"
+ScreenGui.ResetOnSpawn = false
+
+if gethui then 
+    ScreenGui.Parent = gethui()
+elseif syn and syn.protect_gui then 
+    syn.protect_gui(ScreenGui)
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+else 
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui") 
+end
+
+local function makeDraggable(gui)
+    local dragging, dragStart, startPos
+    gui.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = gui.Position
+            input.Changed:Connect(function() 
+                if input.UserInputState == Enum.UserInputState.End then 
+                    dragging = false 
+                end 
+            end)
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStart
+            gui.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+local ToggleButton = Instance.new("ImageButton")
+ToggleButton.Name = "ToggleExternalButton"
+ToggleButton.Size = UDim2.new(0, 80, 0, 80)
+ToggleButton.Position = UDim2.new(0.03, 0, 0.2, 0)
+ToggleButton.Image = "rbxassetid://107995592456738"
+ToggleButton.BackgroundTransparency = 1
+ToggleButton.BorderSizePixel = 0
+ToggleButton.Parent = ScreenGui
+makeDraggable(ToggleButton)
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 240, 0, 330)
+MainFrame.Position = UDim2.new(0.5, -120, 0.5, -165)
+MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+MainFrame.BorderSizePixel = 2
+MainFrame.BorderColor3 = Color3.fromRGB(100, 100, 100)
+MainFrame.Parent = ScreenGui
+makeDraggable(MainFrame)
+
+local TitleLabel = Instance.new("TextLabel")
+TitleLabel.Size = UDim2.new(0.72, 0, 0, 32)
+TitleLabel.Position = UDim2.new(0.04, 0, 0.02, 0)
+TitleLabel.Text = "CALCULADOR DE STUDS"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.Font = Enum.Font.Arcade
+TitleLabel.TextSize = 14
+TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
+TitleLabel.BackgroundTransparency = 1
+TitleLabel.Parent = MainFrame
+
+-- Botão Fechar (X sem borda)
+local CloseBtn = Instance.new("ImageButton")
+CloseBtn.Name = "CloseButton"
+CloseBtn.Size = UDim2.new(0, 28, 0, 28)
+CloseBtn.Position = UDim2.new(0.83, 0, 0.025, 0)
+CloseBtn.Image = "rbxassetid://98235327129327"
+CloseBtn.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+CloseBtn.BorderSizePixel = 0
+CloseBtn.Parent = MainFrame
+
+local function createCard(pos, size)
+    local card = Instance.new("Frame")
+    card.Position = pos
+    card.Size = size
+    card.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+    card.BorderSizePixel = 1
+    card.BorderColor3 = Color3.fromRGB(70, 70, 70)
+    card.Parent = MainFrame
+    return card
+end
+
+local Card1 = createCard(UDim2.new(0.04, 0, 0.13, 0), UDim2.new(0.92, 0, 0.22, 0))
+
+local L1Title = Instance.new("TextLabel", Card1)
+L1Title.Text = "1º PONTO"
+L1Title.Size = UDim2.new(1, -10, 0, 16)
+L1Title.Position = UDim2.new(0, 8, 0, 3)
+L1Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+L1Title.Font = Enum.Font.Arcade
+L1Title.TextSize = 12
+L1Title.TextXAlignment = Enum.TextXAlignment.Left
+L1Title.BackgroundTransparency = 1
+
+local L1Sub = Instance.new("TextLabel", Card1)
+L1Sub.Text = "DEFINIR LOCALIZAÇÃO INICIAL"
+L1Sub.Size = UDim2.new(1, -10, 0, 12)
+L1Sub.Position = UDim2.new(0, 8, 0, 18)
+L1Sub.TextColor3 = Color3.fromRGB(255, 255, 255)
+L1Sub.Font = Enum.Font.Arcade
+L1Sub.TextSize = 9
+L1Sub.TextXAlignment = Enum.TextXAlignment.Left
+L1Sub.BackgroundTransparency = 1
+
+local Btn1 = Instance.new("TextButton", Card1)
+Btn1.Size = UDim2.new(0.92, 0, 0, 24)
+Btn1.Position = UDim2.new(0.04, 0, 0.54, 0)
+Btn1.Text = "MARCAR PONTO 1"
+Btn1.TextColor3 = Color3.fromRGB(255, 255, 255)
+Btn1.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Btn1.BorderSizePixel = 1
+Btn1.BorderColor3 = Color3.fromRGB(80, 80, 80)
+Btn1.Font = Enum.Font.Arcade
+Btn1.TextSize = 12
+
+local Card2 = createCard(UDim2.new(0.04, 0, 0.37, 0), UDim2.new(0.92, 0, 0.22, 0))
+
+local L2Title = Instance.new("TextLabel", Card2)
+L2Title.Text = "2º PONTO"
+L2Title.Size = UDim2.new(1, -10, 0, 16)
+L2Title.Position = UDim2.new(0, 8, 0, 3)
+L2Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+L2Title.Font = Enum.Font.Arcade
+L2Title.TextSize = 12
+L2Title.TextXAlignment = Enum.TextXAlignment.Left
+L2Title.BackgroundTransparency = 1
+
+local L2Sub = Instance.new("TextLabel", Card2)
+L2Sub.Text = "DEFINIR SEGUNDO PONTO"
+L2Sub.Size = UDim2.new(1, -10, 0, 12)
+L2Sub.Position = UDim2.new(0, 8, 0, 18)
+L2Sub.TextColor3 = Color3.fromRGB(255, 255, 255)
+L2Sub.Font = Enum.Font.Arcade
+L2Sub.TextSize = 9
+L2Sub.TextXAlignment = Enum.TextXAlignment.Left
+L2Sub.BackgroundTransparency = 1
+
+local Btn2 = Instance.new("TextButton", Card2)
+Btn2.Size = UDim2.new(0.92, 0, 0, 24)
+Btn2.Position = UDim2.new(0.04, 0, 0.54, 0)
+Btn2.Text = "MARCAR PONTO 2"
+Btn2.TextColor3 = Color3.fromRGB(255, 255, 255)
+Btn2.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Btn2.BorderSizePixel = 1
+Btn2.BorderColor3 = Color3.fromRGB(80, 80, 80)
+Btn2.Font = Enum.Font.Arcade
+Btn2.TextSize = 12
+
+local CardDist = createCard(UDim2.new(0.04, 0, 0.61, 0), UDim2.new(0.92, 0, 0.21, 0))
+
+local LDistTitle = Instance.new("TextLabel", CardDist)
+LDistTitle.Text = "DISTÂNCIA"
+LDistTitle.Size = UDim2.new(0.5, 0, 0, 14)
+LDistTitle.Position = UDim2.new(0, 8, 0, 3)
+LDistTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+LDistTitle.Font = Enum.Font.Arcade
+LDistTitle.TextSize = 10
+LDistTitle.TextXAlignment = Enum.TextXAlignment.Left
+LDistTitle.BackgroundTransparency = 1
+
+local BtnZerar = Instance.new("TextButton", CardDist)
+BtnZerar.Size = UDim2.new(0, 50, 0, 16)
+BtnZerar.Position = UDim2.new(1, -58, 0, 3)
+BtnZerar.Text = "ZERAR"
+BtnZerar.TextColor3 = Color3.fromRGB(255, 255, 255)
+BtnZerar.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+BtnZerar.BorderSizePixel = 1
+BtnZerar.BorderColor3 = Color3.fromRGB(80, 80, 80)
+BtnZerar.Font = Enum.Font.Arcade
+BtnZerar.TextSize = 9
+
+local LabelDistValue = Instance.new("TextLabel", CardDist)
+LabelDistValue.Text = "0 STUDS"
+LabelDistValue.Size = UDim2.new(1, 0, 0, 30)
+LabelDistValue.Position = UDim2.new(0, 0, 0.35, 0)
+LabelDistValue.TextColor3 = Color3.fromRGB(255, 255, 255)
+LabelDistValue.Font = Enum.Font.Arcade
+LabelDistValue.TextSize = 18
+LabelDistValue.BackgroundTransparency = 1
+
+local CardMode = createCard(UDim2.new(0.04, 0, 0.84, 0), UDim2.new(0.92, 0, 0.12, 0))
+
+local LModeTitle = Instance.new("TextLabel", CardMode)
+LModeTitle.Text = "MODO TEMPO REAL"
+LModeTitle.Size = UDim2.new(0.65, 0, 1, 0)
+LModeTitle.Position = UDim2.new(0.05, 0, 0, 0)
+LModeTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+LModeTitle.Font = Enum.Font.Arcade
+LModeTitle.TextSize = 10
+LModeTitle.TextXAlignment = Enum.TextXAlignment.Left
+LModeTitle.BackgroundTransparency = 1
+
+local ToggleSwitch = Instance.new("TextButton", CardMode)
+ToggleSwitch.Size = UDim2.new(0, 36, 0, 18)
+ToggleSwitch.Position = UDim2.new(0.82, -4, 0.5, -9)
+ToggleSwitch.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+ToggleSwitch.BorderSizePixel = 1
+ToggleSwitch.BorderColor3 = Color3.fromRGB(120, 120, 120)
+ToggleSwitch.Text = ""
+
+local SwitchCorner = Instance.new("UICorner", ToggleSwitch)
+SwitchCorner.CornerRadius = UDim.new(1, 0)
+
+local SwitchKnob = Instance.new("Frame", ToggleSwitch)
+SwitchKnob.Size = UDim2.new(0, 14, 0, 14)
+SwitchKnob.Position = UDim2.new(1, -16, 0.5, -7)
+SwitchKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+SwitchKnob.BorderSizePixel = 0
+
+local KnobCorner = Instance.new("UICorner", SwitchKnob)
+KnobCorner.CornerRadius = UDim.new(1, 0)
+
+local function getPlayerPosition()
+    local character = LocalPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        return character.HumanoidRootPart.Position
+    end
+    return nil
+end
+
+Btn1.MouseButton1Click:Connect(function()
+    ponto1 = getPlayerPosition()
+    ponto2 = nil
+    LabelDistValue.Text = "0 STUDS"
+end)
+
+Btn2.MouseButton1Click:Connect(function()
+    if ponto1 then
+        ponto2 = getPlayerPosition()
+        if ponto2 then
+            local dist = (ponto2 - ponto1).Magnitude
+            LabelDistValue.Text = string.format("%.1f STUDS", dist)
+        end
+    end
+end)
+
+BtnZerar.MouseButton1Click:Connect(function()
+    ponto1 = nil
+    ponto2 = nil
+    LabelDistValue.Text = "0 STUDS"
+end)
+
+local function updateSwitchVisual()
+    if modoTempoReal then
+        SwitchKnob.Position = UDim2.new(1, -16, 0.5, -7)
+        ToggleSwitch.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+    else
+        SwitchKnob.Position = UDim2.new(0, 2, 0.5, -7)
+        ToggleSwitch.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    end
+end
+
+ToggleSwitch.MouseButton1Click:Connect(function()
+    modoTempoReal = not modoTempoReal
+    updateSwitchVisual()
+end)
+
+RunService.RenderStepped:Connect(function()
+    if modoTempoReal and ponto1 and not ponto2 then
+        local currentPos = getPlayerPosition()
+        if currentPos then
+            local dist = (currentPos - ponto1).Magnitude
+            LabelDistValue.Text = string.format("%.1f STUDS", dist)
+        end
+    end
+end)
+
+CloseBtn.MouseButton1Click:Connect(function()
+    ScreenGui:Destroy()
+end)
+
+ToggleButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = not MainFrame.Visible
+end)
