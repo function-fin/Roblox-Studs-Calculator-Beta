@@ -7,6 +7,9 @@ local ponto1 = nil
 local ponto2 = nil
 local modoTempoReal = true
 
+local visualPonto1 = {}
+local visualPonto2 = {}
+
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "CalculadorStudsGui"
 ScreenGui.ResetOnSpawn = false
@@ -42,9 +45,77 @@ local function makeDraggable(gui)
     end)
 end
 
+-- Função para criar a iluminação e marcador com borda branca garantida
+local function criarMarcadorVisual(posicao, nome, corPilar)
+    local folder = Instance.new("Folder")
+    folder.Name = "Marcador_" .. nome
+    folder.Parent = workspace
+
+    -- 1. Pilar de Luz Roxo
+    local pilar = Instance.new("Part")
+    pilar.Name = "PilarLuz"
+    pilar.Shape = Enum.PartType.Cylinder
+    pilar.Size = Vector3.new(600, 1.2, 1.2)
+    pilar.CFrame = CFrame.new(posicao) * CFrame.Angles(0, 0, math.rad(90))
+    pilar.Anchored = true
+    pilar.CanCollide = false
+    pilar.Material = Enum.Material.Neon
+    pilar.Color = corPilar
+    pilar.Transparency = 0.3
+    pilar.Parent = folder
+
+    -- 2. Highlight Roxo
+    local highlight = Instance.new("Highlight")
+    highlight.Adornee = pilar
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.FillColor = corPilar
+    highlight.FillTransparency = 0.4
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.OutlineTransparency = 0.2
+    highlight.Parent = folder
+
+    -- 3. Marcador de Texto 2D na Tela
+    local billboard = Instance.new("BillboardGui")
+    billboard.Adornee = pilar
+    billboard.Size = UDim2.new(0, 110, 0, 36)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = folder
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 0.2
+    label.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+    label.Text = nome
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.Font = Enum.Font.Arcade
+    label.TextSize = 14
+    label.Parent = billboard
+
+    local corner = Instance.new("UICorner", label)
+    corner.CornerRadius = UDim.new(0, 4)
+
+    -- UIStroke força a Borda Branca nítida
+    local stroke = Instance.new("UIStroke")
+    stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    stroke.Color = Color3.fromRGB(255, 255, 255)
+    stroke.Thickness = 1.5
+    stroke.Parent = label
+
+    return folder
+end
+
+local function limparMarcador(tabelaVisual)
+    if tabelaVisual.Folder then
+        tabelaVisual.Folder:Destroy()
+        tabelaVisual.Folder = nil
+    end
+end
+
+-- Botão externo de abrir/fechar (tamanho 60x60)
 local ToggleButton = Instance.new("ImageButton")
 ToggleButton.Name = "ToggleExternalButton"
-ToggleButton.Size = UDim2.new(0, 80, 0, 80)
+ToggleButton.Size = UDim2.new(0, 60, 0, 60)
 ToggleButton.Position = UDim2.new(0.03, 0, 0.2, 0)
 ToggleButton.Image = "rbxassetid://107995592456738"
 ToggleButton.BackgroundTransparency = 1
@@ -52,13 +123,14 @@ ToggleButton.BorderSizePixel = 0
 ToggleButton.Parent = ScreenGui
 makeDraggable(ToggleButton)
 
+-- Interface Principal (Borda Branca)
 local MainFrame = Instance.new("Frame")
 MainFrame.Name = "MainFrame"
 MainFrame.Size = UDim2.new(0, 240, 0, 330)
 MainFrame.Position = UDim2.new(0.5, -120, 0.5, -165)
 MainFrame.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
 MainFrame.BorderSizePixel = 2
-MainFrame.BorderColor3 = Color3.fromRGB(100, 100, 100)
+MainFrame.BorderColor3 = Color3.fromRGB(255, 255, 255)
 MainFrame.Parent = ScreenGui
 makeDraggable(MainFrame)
 
@@ -73,7 +145,6 @@ TitleLabel.TextXAlignment = Enum.TextXAlignment.Left
 TitleLabel.BackgroundTransparency = 1
 TitleLabel.Parent = MainFrame
 
--- Botão Fechar (X sem borda)
 local CloseBtn = Instance.new("ImageButton")
 CloseBtn.Name = "CloseButton"
 CloseBtn.Size = UDim2.new(0, 28, 0, 28)
@@ -123,7 +194,7 @@ Btn1.Text = "MARCAR PONTO 1"
 Btn1.TextColor3 = Color3.fromRGB(255, 255, 255)
 Btn1.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 Btn1.BorderSizePixel = 1
-Btn1.BorderColor3 = Color3.fromRGB(80, 80, 80)
+Btn1.BorderColor3 = Color3.fromRGB(255, 255, 255)
 Btn1.Font = Enum.Font.Arcade
 Btn1.TextSize = 12
 
@@ -156,7 +227,7 @@ Btn2.Text = "MARCAR PONTO 2"
 Btn2.TextColor3 = Color3.fromRGB(255, 255, 255)
 Btn2.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 Btn2.BorderSizePixel = 1
-Btn2.BorderColor3 = Color3.fromRGB(80, 80, 80)
+Btn2.BorderColor3 = Color3.fromRGB(255, 255, 255)
 Btn2.Font = Enum.Font.Arcade
 Btn2.TextSize = 12
 
@@ -235,13 +306,22 @@ end
 Btn1.MouseButton1Click:Connect(function()
     ponto1 = getPlayerPosition()
     ponto2 = nil
+    limparMarcador(visualPonto1)
+    limparMarcador(visualPonto2)
     LabelDistValue.Text = "0 STUDS"
+    
+    if ponto1 then
+        visualPonto1.Folder = criarMarcadorVisual(ponto1, "PONTO 1", Color3.fromRGB(150, 0, 255))
+    end
 end)
 
 Btn2.MouseButton1Click:Connect(function()
     if ponto1 then
         ponto2 = getPlayerPosition()
         if ponto2 then
+            limparMarcador(visualPonto2)
+            visualPonto2.Folder = criarMarcadorVisual(ponto2, "PONTO 2", Color3.fromRGB(180, 50, 255))
+            
             local dist = (ponto2 - ponto1).Magnitude
             LabelDistValue.Text = string.format("%.1f STUDS", dist)
         end
@@ -251,6 +331,8 @@ end)
 BtnZerar.MouseButton1Click:Connect(function()
     ponto1 = nil
     ponto2 = nil
+    limparMarcador(visualPonto1)
+    limparMarcador(visualPonto2)
     LabelDistValue.Text = "0 STUDS"
 end)
 
@@ -280,6 +362,8 @@ RunService.RenderStepped:Connect(function()
 end)
 
 CloseBtn.MouseButton1Click:Connect(function()
+    limparMarcador(visualPonto1)
+    limparMarcador(visualPonto2)
     ScreenGui:Destroy()
 end)
 
